@@ -1,0 +1,9 @@
+{   "name": "pictionarynet"
+  , "version": "0.0.1"
+  , "private": true
+  , "dependencies": {
+      "express": ">= 3.0.0"
+    , "socket.io": ">= 0.9.11"
+    , "underscore": "1.4.2"
+  }
+}
