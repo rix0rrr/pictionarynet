@@ -17,6 +17,29 @@ setInterval(function() {
     io.sockets.emit('message', { data: 'hello' });
 }, 5000);
 
+var players = new Array();
+var playerCount = 0;
+var words = [
+	"Superfluous",
+	"Catastrophe",
+	"Tree",
+	"Hug",
+	"Banana",
+	"Apple",
+	"Supercoder"
+	];
+setInterval(function() {
+	playerCount++;
+	var score = Math.floor(Math.random() * 100 + 1);
+	var guess = words[Math.floor(Math.random() * words.length)];
+	players.push({ name: "Player " + playerCount, score: score, latestGuess: guess});
+	io.sockets.emit('gameState', { round: 1, drawing: { width: 768, height: 1024 }, players: players });
+}, 5000);
+
+setInterval(function() {
+	// Update canvas.
+}, 2000);
+
 var oneDay = 24 * 60 * 60 * 1000;
 app.use('/sketchboard', express.static('../sketchboard', { maxAge: oneDay }));
 app.use('/scoreboard', express.static('../scoreboard', { maxAge: oneDay }));
