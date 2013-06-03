@@ -12,6 +12,30 @@
                     var self = this;
 
                     self.players = ko.observableArray();
+                    self.drawingWidth = ko.observable();
+                    self.drawingWidth.subscribe(function(width) {
+                        var canvas = document.getElementById('drawingCanvas');
+                        var context = canvas.getContext('2d');
+                        context.canvas.width = width;
+                    });
+                    self.drawingHeight = ko.observable();
+                    self.drawingHeight.subscribe(function(height) {
+                        var canvas = document.getElementById('drawingCanvas');
+                        var context = canvas.getContext('2d');
+                        context.canvas.height = height;
+                    });
+                    self.drawingLines = ko.observableArray();
+                    self.drawingLines.subscribe(function(lines) {
+                        var canvas = document.getElementById('drawingCanvas');
+                        var context = canvas.getContext('2d');
+
+                        $.each(lines, function(index, line) {
+                            context.beginPath();
+                            context.moveTo(line.x1, line.y1);
+                            context.lineTo(line.x2, line.y2);
+                            context.stroke();
+                        });
+                    });
                 };
 
                 var scoreBoardViewModel = new ScoreBoardViewModel();
@@ -19,31 +43,26 @@
                 var socket = io.connect('http://localhost');
                 socket.on('gameState', function(gameState) {
                     scoreBoardViewModel.players(gameState.players);
+                    scoreBoardViewModel.drawingWidth(gameState.drawing.width);
+                    scoreBoardViewModel.drawingHeight(gameState.drawing.height);
+                    scoreBoardViewModel.drawingLines(gameState.drawing.lines);
                 });
 
                 ko.applyBindings(scoreBoardViewModel);
             });
         </script>
+        <style type="text/css">
+            canvas { border: 1px solid black; }
+        </style>
     </head>
     <body>
         <h1>Scoreboard</h1>
-        <!--
-		<canvas id="drawingCanvas" data-bind="width: gameState().drawing().width, height: gameState().drawing().height">
+		<canvas id="drawingCanvas" data-bind="style: { width: drawingWidth() + 'px', height: drawingHeight() + 'px'}">
 		</canvas>
-        -->
-        <table>
-            <thead>
-                <tr>
-                    <td>Team</td><td>Score</td><td>Latest guess</td>
-                </tr>
-            </thead>
-            <tbody data-bind="foreach: players">
-                <tr>
-                    <td data-bind="text: name"></td>
-                    <td data-bind="text: score"></td>
-                    <td data-bind="text: latestGuess"></td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="playerContainer" data-bind="foreach: players">
+            <div class="playerName" data-bind="text: name"></div>
+            <div class="playerScore" data-bind="text: score"></div>
+            <div class="playerLatestGuess" data-bind="text: latestGuess"></div>
+        </div>
     </body>
 </html>
