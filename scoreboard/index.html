@@ -2,8 +2,48 @@
 <html>
     <head>
         <title>Scoreboard</title>
+        <script type="text/javascript" src="/lib/knockout/knockout-2.2.1.debug.js"></script>
+        <script type="text/javascript" src="javascript/scoreboard.js"></script>
+        <script type="text/javascript" src="/lib/jquery/jquery-1.10.1.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                function ScoreBoardViewModel() {
+                    var self = this;
+
+                    self.players = ko.observableArray();
+                };
+
+                var scoreBoardViewModel = new ScoreBoardViewModel();
+
+                var socket = io.connect('http://localhost');
+                socket.on('gameState', function(gameState) {
+                    scoreBoardViewModel.players(gameState.players);
+                });
+
+                ko.applyBindings(scoreBoardViewModel);
+            });
+        </script>
     </head>
     <body>
         <h1>Scoreboard</h1>
+        <!--
+		<canvas id="drawingCanvas" data-bind="width: gameState().drawing().width, height: gameState().drawing().height">
+		</canvas>
+        -->
+        <table>
+            <thead>
+                <tr>
+                    <td>Team</td><td>Score</td><td>Latest guess</td>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: players">
+                <tr>
+                    <td data-bind="text: name"></td>
+                    <td data-bind="text: score"></td>
+                    <td data-bind="text: latestGuess"></td>
+                </tr>
+            </tbody>
+        </table>
     </body>
 </html>
