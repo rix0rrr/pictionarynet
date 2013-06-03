@@ -13,6 +13,10 @@ app.get('/', function(req, res) {
         '<li><a href="/scoreboard/index.html">Scoreboard</a></li></ul></body></html>');
 });
 
+setInterval(function() {
+    io.sockets.emit('message', { data: 'hello' });
+}, 5000);
+
 var oneDay = 24 * 60 * 60 * 1000;
 app.use('/sketchboard', express.static('../sketchboard', { maxAge: oneDay }));
 app.use('/scoreboard', express.static('../scoreboard', { maxAge: oneDay }));
