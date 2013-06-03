@@ -80,11 +80,11 @@ messages
     message NewRound {
         required int round
         required string word
-        required int width
-        required int height
     }
     
     message Drawing {
+        required int width
+        required int height
         required int round
         required boolean final
         repeated Line lines        
@@ -138,7 +138,7 @@ messages
 
     message GameState {
         required int round;
-        required Image image;
+        required Drawing drawing;
         repeated Player players;
     }
     

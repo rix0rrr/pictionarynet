@@ -20,6 +20,7 @@ setInterval(function() {
 var oneDay = 24 * 60 * 60 * 1000;
 app.use('/sketchboard', express.static('../sketchboard', { maxAge: oneDay }));
 app.use('/scoreboard', express.static('../scoreboard', { maxAge: oneDay }));
+app.use('/lib', express.static('../lib', { maxAge: oneDay }));
 
 server.listen(3000);
 console.log("Express server listening on port %d in %s mode", server.address().port, app.settings.env);
