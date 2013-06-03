@@ -1,13 +1,33 @@
 <!doctype html>
 <html>
     <head>
-        <title>Sketchboard</title>
+        <title>Sketchboard - PictionaryNet</title>
 
-        <script src="jquery-1.10.1.min.js"></script>
+        <meta name="viewport" content="width=768, initial-scale=1, maximum-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        
+        
+        <script src="/lib/jquery/jquery-1.10.1.js"></script>
+        <script src="/lib/knockout/knockout-2.2.1.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="sketchboard.js"></script>
+        <link rel="stylesheet" href="sketchboard.css">
+
     </head>
     <body>
-        <h1>Sketchboard</h1>
+        <div class="app-area">
+            <div class="modal-screen" data-bind="visible: screen() == 'modal'">
+                <div class="modal-screen-inner" data-bind="text: modalMessage()"></div>
+            </div>
+            <div class="draw-screen" data-bind="visible: screen() == 'drawing'">
+                <div class="draw-screen-word" data-bind="text: secretWord()"></div>
+                <div class="draw-screen-area" id="draw-area">
+                    <canvas id="draw-canvas"></canvas>
+                </div>
+                <div class="draw-screen-button">
+                    <button id="doneButton" class="button-green">Finished</button>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
