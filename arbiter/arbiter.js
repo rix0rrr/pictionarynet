@@ -13,9 +13,11 @@ app.get('/', function(req, res) {
         '<li><a href="/scoreboard/index.html">Scoreboard</a></li></ul></body></html>');
 });
 
-setInterval(function() {
-    io.sockets.emit('message', { data: 'hello' });
-}, 5000);
+io.sockets.on('connection', function(socket) {
+    socket.on('gameState', function(state) {
+        socket.broadcast.emit('gameState', state);
+    });
+});
 
 var players = new Array();
 var playerCount = 0;
