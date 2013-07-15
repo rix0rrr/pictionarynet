@@ -18,6 +18,10 @@ io.sockets.on('connection', function(socket) {
     	state.players = [];
         socket.broadcast.emit('gameState', state);
     });
+    
+    socket.on('line', function(line) {
+        socket.broadcast.emit('line', line);
+    });
 });
 
 var players = new Array();

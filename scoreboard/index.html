@@ -8,33 +8,33 @@
         <script src="/socket.io/socket.io.js"></script>
         <script type="text/javascript">
             $(function() {
+                var canvas = document.getElementById('drawingCanvas');
+                var context = canvas.getContext('2d');
+                
+                function drawLines(lines) {
+                    context.beginPath();
+                    $.each(lines, function(index, line) {
+                        context.moveTo(line.x1, line.y1);
+                        context.lineTo(line.x2, line.y2);
+                    });
+                    context.stroke();
+                }
+            
                 function ScoreBoardViewModel() {
                     var self = this;
 
                     self.players = ko.observableArray();
                     self.drawingWidth = ko.observable();
                     self.drawingWidth.subscribe(function(width) {
-                        var canvas = document.getElementById('drawingCanvas');
-                        var context = canvas.getContext('2d');
                         context.canvas.width = width;
                     });
                     self.drawingHeight = ko.observable();
                     self.drawingHeight.subscribe(function(height) {
-                        var canvas = document.getElementById('drawingCanvas');
-                        var context = canvas.getContext('2d');
                         context.canvas.height = height;
                     });
                     self.drawingLines = ko.observableArray();
                     self.drawingLines.subscribe(function(lines) {
-                        var canvas = document.getElementById('drawingCanvas');
-                        var context = canvas.getContext('2d');
-
-                        $.each(lines, function(index, line) {
-                            context.beginPath();
-                            context.moveTo(line.x1, line.y1);
-                            context.lineTo(line.x2, line.y2);
-                            context.stroke();
-                        });
+                        drawLines(lines);
                     });
                 };
 
@@ -46,6 +46,10 @@
                     scoreBoardViewModel.drawingWidth(gameState.drawing.width);
                     scoreBoardViewModel.drawingHeight(gameState.drawing.height);
                     scoreBoardViewModel.drawingLines(gameState.drawing.lines);
+                });
+                
+                socket.on('line', function(line) {
+                    drawLines([line]);
                 });
 
                 ko.applyBindings(scoreBoardViewModel);

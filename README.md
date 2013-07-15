@@ -87,14 +87,7 @@ messages
         required int height
         required int round
         required boolean final
-        repeated Line lines        
-    }
-    
-    message Line {
-        required int x1
-        required int y1
-        required int x2
-        required int y2
+        repeated byte pixels
     }
     
     package player;
@@ -108,12 +101,6 @@ messages
     message EndRound {
         required int round;
         required string word;
-    }
-    
-    message Image {
-        required int width;
-        required int height;
-        repeated byte pixels;
     }
     
     message Challenge {
@@ -134,12 +121,22 @@ messages
         required string password;
     }
     
-    package scoreboard; 
+    package scoreboard;
+    
+    message RequestGameState;
+    message RequestDrawing;
 
     message GameState {
         required int round;
         required Drawing drawing;
         repeated Player players;
+    }
+    
+    message Line {
+        required int x1;
+        required int y1;
+        required int x2;
+        required int y2;
     }
     
     message Player {
