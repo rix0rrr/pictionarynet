@@ -13,13 +13,48 @@ app.get('/', function(req, res) {
         '<li><a href="/scoreboard/index.html">Scoreboard</a></li></ul></body></html>');
 });
 
+function Player() {
+	this.name = "";
+	this.score = 0;
+	this.latestGuess = "";
+}
+
+function GameState() {
+    this.round = 1;
+    this.players = [];
+}
+
+function Line(x1, y1, x2, y2) {
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+}
+
+function Drawing() {
+    this.width = 0;
+    this.height = 0;
+    this.lines = [];
+}
+
+function Game() {
+	this.gameState = new GameState();
+	this.drawing = new Drawing();
+}
+
+var game = new Game();
+
 io.sockets.on('connection', function(socket) {
-    socket.on('gameState', function(state) {
-    	state.players = [];
-        socket.broadcast.emit('gameState', state);
+    socket.emit('gameState', game.gameState);
+    socket.emit('drawing', game.drawing);
+
+    socket.on('drawing', function(drawing) {
+        game.drawing = drawing;
+        socket.broadcast.emit('drawing', drawing);
     });
-    
+
     socket.on('line', function(line) {
+        game.drawing.lines.push(line);
         socket.broadcast.emit('line', line);
     });
 });

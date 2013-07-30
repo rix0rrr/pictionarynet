@@ -10,8 +10,9 @@
             $(function() {
                 var canvas = document.getElementById('drawingCanvas');
                 var context = canvas.getContext('2d');
-                
+
                 function drawLines(lines) {
+                    context.lineWidth = 3;
                     context.beginPath();
                     $.each(lines, function(index, line) {
                         context.moveTo(line.x1, line.y1);
@@ -34,6 +35,7 @@
                     });
                     self.drawingLines = ko.observableArray();
                     self.drawingLines.subscribe(function(lines) {
+                        context.clearRect(0 ,0 ,context.canvas.width, context.canvas.height);
                         drawLines(lines);
                     });
                 };
@@ -43,9 +45,14 @@
                 var socket = io.connect('http://localhost');
                 socket.on('gameState', function(gameState) {
                     scoreBoardViewModel.players(gameState.players);
-                    scoreBoardViewModel.drawingWidth(gameState.drawing.width);
-                    scoreBoardViewModel.drawingHeight(gameState.drawing.height);
-                    scoreBoardViewModel.drawingLines(gameState.drawing.lines);
+                });
+
+                socket.on('drawing', function(drawing) {
+                    console.log('Received drawing');
+
+                    scoreBoardViewModel.drawingWidth(drawing.width);
+                    scoreBoardViewModel.drawingHeight(drawing.height);
+                    scoreBoardViewModel.drawingLines(drawing.lines);
                 });
                 
                 socket.on('line', function(line) {

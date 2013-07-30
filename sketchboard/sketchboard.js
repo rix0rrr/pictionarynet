@@ -12,7 +12,11 @@ $(function() {
         this.y2 = y2;
     }
 
-    var lines = [];
+    function Drawing(width, height, lines) {
+        this.width = width;
+        this.height = height;
+        this.lines = lines;
+    }
 
     var model = {
         screen: ko.observable('drawing'),
@@ -22,7 +26,7 @@ $(function() {
 
     ko.applyBindings(model);
 
-    var drawing = false;
+    var isDrawing = false;
     var last;
 	
     var context = $('#draw-canvas').get(0).getContext('2d');
@@ -30,6 +34,8 @@ $(function() {
 
     context.canvas.width = $('#draw-canvas').width();
     context.canvas.height = $('#draw-canvas').height();
+
+    var drawing = new Drawing(context.canvas.width, context.canvas.height, []);
 
     var pointFromEvent = function(e) {
         var x = e.pageX - $(e.target).offset().left;
@@ -39,13 +45,13 @@ $(function() {
     }
     
     function drawLine(line) {
-        lines.push(line);
+        drawing.lines.push(line);
         context.lineTo(line.x2, line.y2);
         context.stroke();
     }
 
     $('#draw-area').on('mousedown touchstart', function(e) {
-        drawing = true;
+        isDrawing = true;
 
         last = pointFromEvent(e);
         context.lineWidth = 3;
@@ -56,7 +62,7 @@ $(function() {
         e.stopPropagation();
         return false;
     }).on('mousemove touchmove', function(e) {
-        if (!drawing) return;
+        if (!isDrawing) return;
 
         var pt   = pointFromEvent(e);
         var line = new Line(last.x, last.y, pt.x, pt.y);
@@ -69,9 +75,9 @@ $(function() {
         e.stopPropagation();
         return false;
     }).on('mouseup touchend', function(e) {
-        if (!drawing) return;
+        if (!isDrawing) return;
         
-        drawing = false;
+        isDrawing = false;
 
         e.preventDefault();
         e.stopPropagation();
@@ -79,19 +85,12 @@ $(function() {
     });
 
     var socket = io.connect('http://localhost');
-    
+    socket.emit('drawing', drawing);
+    console.log('foobar');
+    console.log('drawing height: ' + drawing.height);
+
     function sendLineToServer(line) {
         socket.emit('line', line);
     }
     
-    function sendLinesToServer() {
-        socket.emit('gameState', { drawing : {
-            width: context.canvas.width,
-            height: context.canvas.height,
-            round: 0,
-            'final': false,
-            lines: lines
-        }});
-    }
-
 });

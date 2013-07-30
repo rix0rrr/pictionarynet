@@ -85,9 +85,7 @@ messages
     message Drawing {
         required int width
         required int height
-        required int round
-        required boolean final
-        repeated byte pixels
+        repeated Line lines
     }
     
     package player;
@@ -128,7 +126,6 @@ messages
 
     message GameState {
         required int round;
-        required Drawing drawing;
         repeated Player players;
     }
     
