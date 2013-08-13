@@ -39,6 +39,7 @@
                         context.clearRect(0 ,0 ,context.canvas.width, context.canvas.height);
                         drawLines(lines);
                     });
+                    self.gameMessage = ko.observable();
                 };
 
                 var scoreBoardViewModel = new ScoreBoardViewModel();
@@ -60,6 +61,10 @@
                     drawLines([line]);
                 });
 
+                socket.on('gameMessage', function(gameMessage) {
+                    scoreBoardViewModel.gameMessage(gameMessage);
+                });
+
                 ko.applyBindings(scoreBoardViewModel);
             });
         </script>
@@ -69,6 +74,7 @@
     </head>
     <body>
         <h1>Scoreboard</h1>
+        <h2><span data-bind="text: gameMessage"></span></h2>
 		<canvas id="drawingCanvas" data-bind="style: { width: drawingWidth() + 'px', height: drawingHeight() + 'px'}">
 		</canvas>
         <div class="playerContainer" data-bind="foreach: players">

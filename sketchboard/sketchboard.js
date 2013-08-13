@@ -88,7 +88,7 @@ $(function() {
     }
 
     $('#doneButton').click(function() {
-        socket.emit('finished', drawing);
+        socket.emit('finished');
     });
     
 });

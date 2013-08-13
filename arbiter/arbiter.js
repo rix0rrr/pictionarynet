@@ -26,6 +26,20 @@ function switchToNextRound(game) {
     game.round.word = pickRandomWord();
 }
 
+function startCountdown(socket) {
+    sendCountdownMessage(socket, 10);
+}
+
+function sendCountdownMessage(socket, countdownTimer) {
+    socket.broadcast.emit('gameMessage', 'Round ends in ' + countdownTimer);
+
+    console.log('Sent game message: ' + countdownTimer);
+
+    if (countdownTimer > 0) {
+        setTimeout(function() { sendCountdownMessage(socket, countdownTimer - 1); }, 1000);
+    }
+}
+
 var game = new data.Game();
 switchToNextRound(game);
 
@@ -48,9 +62,11 @@ io.sockets.on('connection', function(socket) {
         console.log(guess.teamName);
     });
 
-    socket.on('finished', function(drawing) {
+    socket.on('finished', function() {
         switchToNextRound(game);
         socket.emit('round', game.round);
+        socket.broadcast.emit('roundEnd', game.drawing);
+        startCountdown(socket);
     });
 });
 

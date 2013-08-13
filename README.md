@@ -84,7 +84,7 @@ Messages in the system:
     line(line object)
         - Sent by sketchboard for intermediate updates (new lines are drawn).
 
-    finished(drawing object)
+    finished()
         - Sent by sketchboard to arbiter to indicate end of a round.
     
     message NewRound {
@@ -146,6 +146,6 @@ Messages in the system:
         required string latestGuess;
     }
     
-    message GamestateEvent {
+    message GameMessage {
         required string text;
     }
