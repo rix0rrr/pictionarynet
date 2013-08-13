@@ -33,9 +33,15 @@ function Line(x1, y1, x2, y2) {
     this.y2 = y2;
 }
 
+function Round() {
+    this.roundNr = 0;
+    this.word = "";
+}
+
 function Game() {
-	this.gameState = new GameState();
-	this.drawing   = new Drawing();
+    this.gameState = new GameState();
+    this.drawing   = new Drawing();
+    this.round = new Round();
 }
 
 
