@@ -33,6 +33,10 @@ io.sockets.on('connection', function(socket) {
     socket.on('guess', function(guess) {
         console.log(guess.teamName);
     });
+
+    socket.on('finished', function(drawing) {
+        console.log('Finished');
+    });
 });
 
 var players = new Array();

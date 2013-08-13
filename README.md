@@ -75,7 +75,17 @@ domein model
 
 messages
 --------
-    package drawer;
+
+Messages in the system:
+
+    drawing(drawing object)
+        - Sent by sketchboard to arbiter to update entire drawing.
+
+    line(line object)
+        - Sent by sketchboard for intermediate updates (new lines are drawn).
+
+    finished(drawing object)
+        - Sent by sketchboard to arbiter to indicate end of a round.
     
     message NewRound {
         required int round

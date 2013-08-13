@@ -67,12 +67,16 @@ $(function() {
     });
 
     var socket = io.connect('http://localhost');
-    socket.emit('drawing', drawing);
-    console.log('foobar');
-    console.log('drawing height: ' + drawing.height);
+    socket.on('connect', function() {
+        socket.emit('drawing', drawing);
+    });
 
     function sendLineToServer(line) {
         socket.emit('line', line);
     }
+
+    $('#doneButton').click(function() {
+        socket.emit('finished', drawing);
+    });
     
 });
