@@ -103,10 +103,12 @@ function invokeGuesser(filename) {
     var deferred = Q.defer();
 
     guesserRunning = true;
-    var proc = child_process.exec('"' + executable + '" "' + filename + '"', function(error, stdout, stderr) {
+    var commandline = executable + ' "' + filename + '"';
+    console.log('Running: ' + commandline);
+    var proc = child_process.exec(commandline, function(error, stdout, stderr) {
         guesserRunning = false;
         if (error)
-            deffered.reject(error);
+            deferred.reject(error);
         else {
             if (stderr.toString()) util.error(stderr.toString());
             deferred.resolve(trim(stdout.toString()));
@@ -133,7 +135,11 @@ var callClient = function() {
     writeCanvasToFile()
         .then(invokeGuesser)
         .then(function(guess) {
+            console.log('Sending guess: ' + guess);
             socket.emit('guess', new data.Guess(teamName, password, guess));
+        })
+        .catch(function(error) {
+            console.log('ERROR:', error);
         });
 };
 
