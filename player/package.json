@@ -2,6 +2,8 @@
   , "version": "0.0.1"
   , "private": true
   , "dependencies": {
-    "socket.io-client": "0.9.16"
+      "socket.io-client": "0.9.16"
+    , "q": "0.9.6"
+    , "underscore" : "1.5.1"
   }
 }

@@ -1,0 +1,8 @@
+node-canvas
+    OS X:
+        brew install cairo gobject-introspection fontconfig jpeg giflib (~15min)
+        export PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig
+        npm install canvas
+
+    Windows:
+        npm install canvas-win
