@@ -5,12 +5,16 @@ var Canvas = require('canvas');
 var _    = require('underscore');
 var fs   = require('fs');
 var Q    = require('q');
+var child_process = require('child_process');
+var util = require('util');
+
+var trim = function(x) {return x.replace(/^\s+|\s+$/g, '');};
 
 // Make script run for a long time
 setTimeout(function() { console.log('Your script took too long. I\'m bored. Bye!'); }, 10000000);
 
-if (args.length !== 3) {
-    console.log('Usage: node script.js TEAMNAME HTTP://SERVER:PORT/ EXECUTABLE');
+if (args.length !== 4) {
+    console.log('Usage: node script.js <HTTP://SERVER:PORT/> <TEAMNAME> <PASSWORD> <EXECUTABLE>');
     console.log('');
     console.log('Your executable will be called periodically with the PATH to an image file,');
     console.log('and is expected to produce the name of the corresponding image class on stdout.');
@@ -18,9 +22,10 @@ if (args.length !== 3) {
     process.exit(1);
 }
 
-var teamName      = args[0];
-var serverAddress = args[1];
-var executable    = args[2];
+var serverAddress = args[0];
+var teamName      = args[1];
+var password      = args[2];
+var executable    = args[3];
 
 var latestDrawing = new data.Drawing(0, 0, []);
 
@@ -87,16 +92,49 @@ function writeCanvasToFile() {
     return deferred.promise;
 }
 
+var guesserRunning = false;
+
+/**
+ * Invoke the guesser with the given filename
+ *
+ * Return a promise for the process' stdout.
+ */
+function invokeGuesser(filename) {
+    var deferred = Q.defer();
+
+    guesserRunning = true;
+    var proc = child_process.exec('"' + executable + '" "' + filename + '"', function(error, stdout, stderr) {
+        guesserRunning = false;
+        if (error)
+            deffered.reject(error);
+        else {
+            if (stderr.toString()) util.error(stderr.toString());
+            deferred.resolve(trim(stdout.toString()));
+        }
+    });
+
+    return deferred.promise;
+}
+
+/**
+ * Invoke the guesser only if it's not currently running
+ */
+function maybeInvokeGuesser(filename) {
+    if (!guesserRunning) invokeGuesser(filename);
+}
+
 /**
  * Called when the drawing has changed
  *
  * Rasterizes the image, calls the executable, and sends its output back
- * as a guess
+ * as a guess.
  */
 var callClient = function() {
-    writeCanvasToFile().then(function(filename) {
-        console.log("Wrote image to", filename);
-    });
+    writeCanvasToFile()
+        .then(invokeGuesser)
+        .then(function(guess) {
+            socket.emit('guess', new data.Guess(teamName, password, guess));
+        });
 };
 
 // Update drawing based on information from server
@@ -112,4 +150,3 @@ socket.on('line', function(line) {
     callClient();
 });
 
-socket.emit('guess', new data.Guess(teamName , 'asdfasdjkf', 'boobie'));
