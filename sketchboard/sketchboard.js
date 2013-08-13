@@ -17,7 +17,14 @@ $(function() {
     context.canvas.width = $('#draw-canvas').width();
     context.canvas.height = $('#draw-canvas').height();
 
-    var drawing = new Drawing(context.canvas.width, context.canvas.height, []);
+    var drawing;
+
+    function resetDrawing() {
+      drawing = new Drawing(context.canvas.width, context.canvas.height, []);
+      context.clearRect(0 ,0 ,context.canvas.width, context.canvas.height);  
+    }
+
+    resetDrawing();
 
     var pointFromEvent = function(e) {
         var x = e.pageX - $(e.target).offset().left;
@@ -69,6 +76,11 @@ $(function() {
     var socket = io.connect('http://localhost');
     socket.on('connect', function() {
         socket.emit('drawing', drawing);
+
+        socket.on('round', function(round) {
+            model.secretWord(round.word);
+            resetDrawing();
+        });
     });
 
     function sendLineToServer(line) {

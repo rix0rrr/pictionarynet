@@ -22,12 +22,11 @@ function pickRandomWord() {
 }
 
 function switchToNextRound(game) {
-    game.round++;
-    game.word = pickRandomWord();
+    game.round.roundNr++;
+    game.round.word = pickRandomWord();
 }
 
 var game = new data.Game();
-game.round = 1;
 switchToNextRound(game);
 
 io.sockets.on('connection', function(socket) {
@@ -50,7 +49,8 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('finished', function(drawing) {
-        console.log('Finished');
+        switchToNextRound(game);
+        socket.emit('round', game.round);
     });
 });
 
