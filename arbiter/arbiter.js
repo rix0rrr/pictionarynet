@@ -1,4 +1,5 @@
 var express = require('express');
+var words = require('./words.json');
 
 // Roundabout initialization of Socket.IO, required for express 3.0
 var app    = express()
@@ -14,11 +15,25 @@ app.get('/', function(req, res) {
         '<li><a href="/scoreboard/index.html">Scoreboard</a></li></ul></body></html>');
 });
 
+function pickRandomWord() {
+    var index = Math.floor(Math.random() * words.length);
+
+    return words[index];
+}
+
+function switchToNextRound(game) {
+    game.round++;
+    game.word = pickRandomWord();
+}
+
 var game = new data.Game();
+game.round = 1;
+switchToNextRound(game);
 
 io.sockets.on('connection', function(socket) {
     socket.emit('gameState', game.gameState);
     socket.emit('drawing', game.drawing);
+    socket.emit('round', game.round);
 
     socket.on('drawing', function(drawing) {
         game.drawing = drawing;
@@ -42,15 +57,6 @@ io.sockets.on('connection', function(socket) {
 var players = new Array();
 var lines = new Array();
 var playerCount = 0;
-var words = [
-	"Superfluous",
-	"Catastrophe",
-	"Tree",
-	"Hug",
-	"Banana",
-	"Apple",
-	"Supercoder"
-	];
 
 /*
 setInterval(function() {
