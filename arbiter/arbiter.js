@@ -57,6 +57,10 @@ io.sockets.on('connection', function(socket) {
         game.drawing.lines.push(line);
         socket.broadcast.emit('line', line);
     });
+
+    socket.on('guess', function(guess) {
+        console.log(guess.teamName);
+    });
 });
 
 var players = new Array();

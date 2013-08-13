@@ -14,7 +14,7 @@ wat we gaan doen:
 
 - met de hand tekenen tijdens de avond
 - op basis van de dataset trainen
-    - dat betekend dat de dataset en de tekeningen moeten overlappen
+    - dat betekent dat de dataset en de tekeningen moeten overlappen
 
 wat we willen kunnen:
  
@@ -42,14 +42,14 @@ user stories
 - de arbiter ontvangt een tekening van de tekenaar
 - de arbiter geeft plaatjes aan de speler
 - de arbiter ontvangt geraden woorden van de speler
-- de arbiter onthoud of de woorden binnen de tijd zijn geraden
+- de arbiter onthoudt of de woorden binnen de tijd zijn geraden
 - de tekenaar kan aangeven dat hij klaar is met tekenen
 - de spelers hebben X tijd nadat de tekenaar klaar is met tekenen
 - het scorebord laat de huidige tekening zien
 - het scorebord laat een overzicht van woorden die spelers raden zien
 - het scorebord laat de naam van elk team zien
 - het scorebord laat de actuele stand zien
-- de speler meld zichzelf
+- de speler meldt zichzelf
 - de speler weet welke tekening de definitieve is
 - de speler weet wanneer de ronde start en eindigt
 - de speler geeft aan bij welke ronde het geraden woord hoort.
@@ -108,15 +108,9 @@ messages
     }
     
     message Guess {
-        required int round
         required string teamName
         required string password;
         required string word
-    }
-    
-    message Register {
-        required string teamName
-        required string password;
     }
     
     package scoreboard;
