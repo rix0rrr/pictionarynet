@@ -1,25 +1,22 @@
-var io = require('socket.io-client');
-
+var io   = require('socket.io-client');
+var data = require('../shared/data.js');
 var args = process.argv.splice(2);
 
-
 // Make script run for a long time
-setTimeout(function() { console.log('Your script took too long. I\'m bored. Bye!'); }, 50000);
+setTimeout(function() { console.log('Your script took too long. I\'m bored. Bye!'); }, 10000000);
 
 if (args.length !== 3) {
-  console.log('Please provide team name, server address and path to executable.')
-  process.exit(1);
+    console.log('Usage: node script.js TEAMNAME HTTP://SERVER:PORT/ EXECUTABLE');
+    console.log('');
+    console.log('Your executable will be called periodically with the PATH to an image file,');
+    console.log('and is expected to produce the name of the corresponding image class on stdout.');
+
+    process.exit(1);
 }
 
-var teamName = args[0];
+var teamName      = args[0];
 var serverAddress = args[1];
-var executable = args[2];
-
-function Guess(teamName, passWord, word) {
-  this.teamName = teamName;
-  this.passWord = passWord;
-  this.word = word;
-}
+var executable    = args[2];
 
 // var socket = new io.Socket('localhost');
 // socket.connect();
@@ -33,6 +30,4 @@ socket.on('error', function(e) {
     process.exit(1);
 });
 
-
-
-socket.emit('guess', new Guess(teamName , 'asdfasdjkf', 'boobie'));
+socket.emit('guess', new data.Guess(teamName , 'asdfasdjkf', 'boobie'));

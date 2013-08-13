@@ -1,23 +1,5 @@
 $(function() {
 
-    function Point(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    function Line(x1, y1, x2, y2) {
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
-    }
-
-    function Drawing(width, height, lines) {
-        this.width = width;
-        this.height = height;
-        this.lines = lines;
-    }
-
     var model = {
         screen: ko.observable('drawing'),
         modalMessage: ko.observable('Please wait for a new round to start.'),

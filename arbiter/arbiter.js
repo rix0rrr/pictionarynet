@@ -3,6 +3,7 @@ var express = require('express');
 // Roundabout initialization of Socket.IO, required for express 3.0
 var app    = express()
     http   = require('http'),
+    data   = require('../shared/data.js'),
     server = http.createServer(app),
     io     = require('socket.io').listen(server);
 
@@ -13,36 +14,7 @@ app.get('/', function(req, res) {
         '<li><a href="/scoreboard/index.html">Scoreboard</a></li></ul></body></html>');
 });
 
-function Player() {
-	this.name = "";
-	this.score = 0;
-	this.latestGuess = "";
-}
-
-function GameState() {
-    this.round = 1;
-    this.players = [];
-}
-
-function Line(x1, y1, x2, y2) {
-    this.x1 = x1;
-    this.y1 = y1;
-    this.x2 = x2;
-    this.y2 = y2;
-}
-
-function Drawing() {
-    this.width = 0;
-    this.height = 0;
-    this.lines = [];
-}
-
-function Game() {
-	this.gameState = new GameState();
-	this.drawing = new Drawing();
-}
-
-var game = new Game();
+var game = new data.Game();
 
 io.sockets.on('connection', function(socket) {
     socket.emit('gameState', game.gameState);
@@ -97,6 +69,7 @@ setInterval(function() {
 var oneDay = 24 * 60 * 60 * 1000;
 app.use('/sketchboard', express.static('../sketchboard', { maxAge: oneDay }));
 app.use('/scoreboard', express.static('../scoreboard', { maxAge: oneDay }));
+app.use('/shared', express.static('../shared', { maxAge: oneDay }));
 app.use('/lib', express.static('../lib', { maxAge: oneDay }));
 
 server.listen(3000);
