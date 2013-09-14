@@ -18,10 +18,12 @@ $(function() {
     context.canvas.height = $('#draw-canvas').height();
 
     var drawing;
+    var socket;
 
     function resetDrawing() {
       drawing = new Drawing(context.canvas.width, context.canvas.height, []);
       context.clearRect(0 ,0 ,context.canvas.width, context.canvas.height);  
+      if (socket) socket.emit('drawing', drawing);
     }
 
     resetDrawing();
@@ -80,7 +82,7 @@ $(function() {
         return false;
     });
 
-    var socket = io.connect();
+    socket = io.connect();
     socket.on('connect', function() {
         socket.emit('drawing', drawing);
 
