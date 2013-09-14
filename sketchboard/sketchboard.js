@@ -1,7 +1,7 @@
 $(function() {
 
     var model = {
-        screen: ko.observable('drawing'),
+        screen: ko.observable('screen'),
         modalMessage: ko.observable('Please wait for a new round to start.'),
         secretWord: ko.observable('Boobie')
     };
@@ -27,10 +27,17 @@ $(function() {
     resetDrawing();
 
     var pointFromEvent = function(e) {
-        var x = e.pageX - $(e.target).offset().left;
-        var y = e.pageY - $(e.target).offset().top;
+        var x, y;
 
-        return new Point(x, y);
+        if (e.originalEvent.targetTouches) {
+            x = e.originalEvent.targetTouches[0].pageX;
+            y = e.originalEvent.targetTouches[0].pageY;
+        } else {
+            x = e.pageX;
+            y = e.pageY;
+        }
+
+        return new Point(x - $(e.target).offset().left, y - $(e.target).offset().top);
     }
     
     function drawLine(line) {
@@ -73,13 +80,24 @@ $(function() {
         return false;
     });
 
-    var socket = io.connect('http://localhost');
+    var socket = io.connect();
     socket.on('connect', function() {
         socket.emit('drawing', drawing);
 
         socket.on('round', function(round) {
+            model.screen('drawing');
             model.secretWord(round.word);
             resetDrawing();
+        });
+
+        socket.on('gameMessage', function(message) {
+            if (message != '') {
+                model.screen('modal');
+                model.modalMessage(message);
+            } else {
+                model.screen('drawing');
+                model.modalMessage(message);
+            }
         });
     });
 
