@@ -59,10 +59,12 @@ function drawEntireCanvas() {
     _.each(latestDrawing.lines, drawLineToCanvas);
 
     canvasContext.stroke();
+    canvasContext.closePath();
 }
 
 function drawLineToCanvas(line) {
     if (!canvasContext) return;
+    if (!line) return;
 
     canvasContext.moveTo(line.x1, line.y1);
     canvasContext.lineTo(line.x2, line.y2);
@@ -172,6 +174,7 @@ var callClient = function() {
 
 // Update drawing based on information from server
 socket.on('drawing', function(drawing) {
+    console.log('Received replacement drawing');
     latestDrawing = drawing;
     drawEntireCanvas();
     callClient();

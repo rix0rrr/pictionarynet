@@ -93,6 +93,12 @@ io.sockets.on('connection', function(socket) {
         socket.broadcast.emit('line', line);
     });
 
+    socket.on('undo', function() {
+        data.undoLastDrawingMotion(game.drawing);
+        console.log(game.drawing);
+        socket.broadcast.emit('drawing', game.drawing);
+    });
+
     socket.on('guess', function(guess) {
         var thePlayer = _(game.gameState.players).find(function(p) { return p.name == guess.teamName; });
         if (!thePlayer) { 

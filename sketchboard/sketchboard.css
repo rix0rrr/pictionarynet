@@ -71,6 +71,32 @@ button {
     font-weight: bold;
 }
 
+#undoButton {
+    width: 10%;
+    float: left;
+}
+
+.button-red {
+  color: #fff !important;
+  text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.33);
+  -webkit-font-smoothing: antialiased;
+
+    background-image: linear-gradient(bottom, rgb(179,45,36) 15%, rgb(214,152,137) 88%);
+    background-image: -o-linear-gradient(bottom, rgb(179,45,36) 15%, rgb(214,152,137) 88%);
+    background-image: -moz-linear-gradient(bottom, rgb(179,45,36) 15%, rgb(214,152,137) 88%);
+    background-image: -webkit-linear-gradient(bottom, rgb(179,45,36) 15%, rgb(214,152,137) 88%);
+    background-image: -ms-linear-gradient(bottom, rgb(179,45,36) 15%, rgb(214,152,137) 88%);
+
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.15, rgb(179,45,36)),
+        color-stop(0.88, rgb(214,152,137))
+    );
+
+}
+
 .button-green {
   background-color: hsl(110, 51%, 37%) !important;
   background-repeat: repeat-x;

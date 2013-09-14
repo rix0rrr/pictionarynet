@@ -6,10 +6,13 @@ $(function() {
         context.lineWidth = 3;
         context.beginPath();
         $.each(lines, function(index, line) {
+            if (!line) return;
+
             context.moveTo(line.x1, line.y1);
             context.lineTo(line.x2, line.y2);
         });
         context.stroke();
+        context.closePath();
     }
 
     function ScoreBoardViewModel() {

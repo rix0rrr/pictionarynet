@@ -23,6 +23,17 @@ $(function() {
       if (socket) socket.emit('drawing', drawing);
     }
 
+    function redrawDrawing() {
+        context.fillStyle = 'white';
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height);  
+
+        context.beginPath();
+        for (var i = 0; i < drawing.lines.length; i++) {
+            drawLine(drawing.lines[i]);
+        }
+        context.closePath();
+    }
+
     var pointFromEvent = function(e) {
         var x, y;
 
@@ -38,9 +49,15 @@ $(function() {
     }
     
     function drawLine(line) {
-        drawing.lines.push(line);
+        if (!line) return;
+
+        context.moveTo(line.x1, line.y1);
         context.lineTo(line.x2, line.y2);
         context.stroke();
+    }
+
+    function endLine() {
+        drawing.lines.push(null);
     }
 
     $('#draw-area').on('mousedown touchstart', function(e) {
@@ -49,7 +66,6 @@ $(function() {
         last = pointFromEvent(e);
         context.lineWidth = 3;
         context.beginPath();
-        context.moveTo(last.x, last.y);
 
         e.preventDefault();
         e.stopPropagation();
@@ -61,6 +77,7 @@ $(function() {
         var line = new Line(last.x, last.y, pt.x, pt.y);
         last = pt;
         
+        drawing.lines.push(line);
         drawLine(line);
         sendLineToServer(line);
 
@@ -69,7 +86,10 @@ $(function() {
         return false;
     }).on('mouseup touchend', function(e) {
         if (!isDrawing) return;
-        
+
+        context.closePath();
+        endLine();
+        sendLineToServer(null);
         isDrawing = false;
 
         e.preventDefault();
@@ -108,5 +128,10 @@ $(function() {
     $('#doneButton').click(function() {
         socket.emit('finished');
     });
-    
+
+    $('#undoButton').click(function() {
+        socket.emit('undo');
+        undoLastDrawingMotion(drawing);
+        redrawDrawing();
+    });
 });

@@ -44,6 +44,16 @@ function Game() {
     this.round = new Round();
 }
 
+function undoLastDrawingMotion(drawing) {
+    var i;
+    for (i = drawing.lines.length - 2; i > 0; i--) {
+        if (!drawing.lines[i]) { // End of motion marker
+            break;
+        }
+    }
+    drawing.lines = drawing.lines.slice(0, i);
+    if (drawing.lines.length) drawing.lines.push(null);
+}
 
 if (typeof exports != 'undefined') module.exports = {
     Guess     : Guess,
@@ -52,5 +62,6 @@ if (typeof exports != 'undefined') module.exports = {
     Line      : Line,
     Drawing   : Drawing,
     Game      : Game,
-    Point     : Point
+    Point     : Point,
+    undoLastDrawingMotion : undoLastDrawingMotion
 }
