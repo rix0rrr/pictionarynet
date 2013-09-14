@@ -31,12 +31,17 @@ function startCountdown(socket) {
 }
 
 function sendCountdownMessage(socket, countdownTimer) {
-    socket.broadcast.emit('gameMessage', 'Round ends in ' + countdownTimer);
+    io.sockets.emit('gameMessage', 'Round ends in ' + countdownTimer);
 
     console.log('Sent game message: ' + countdownTimer);
 
     if (countdownTimer > 0) {
         setTimeout(function() { sendCountdownMessage(socket, countdownTimer - 1); }, 1000);
+    }
+    else {
+        io.sockets.emit('gameMessage', '');
+        switchToNextRound(game);
+        socket.emit('round', game.round);
     }
 }
 
@@ -63,15 +68,13 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('finished', function() {
-        switchToNextRound(game);
-        socket.emit('round', game.round);
         socket.broadcast.emit('roundEnd', game.drawing);
         startCountdown(socket);
     });
 });
 
-var players = new Array();
-var lines = new Array();
+var players = [];
+var lines = [];
 var playerCount = 0;
 
 /*
@@ -92,7 +95,8 @@ setInterval(function() {
 }, 5000);
 */
 
-var oneDay = 24 * 60 * 60 * 1000;
+//var oneDay = 24 * 60 * 60 * 1000;
+var oneDay = 0;
 app.use('/sketchboard', express.static('../sketchboard', { maxAge: oneDay }));
 app.use('/scoreboard', express.static('../scoreboard', { maxAge: oneDay }));
 app.use('/shared', express.static('../shared', { maxAge: oneDay }));
