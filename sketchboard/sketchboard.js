@@ -3,7 +3,7 @@ $(function() {
     var model = {
         screen: ko.observable('screen'),
         modalMessage: ko.observable('Please wait for a new round to start.'),
-        secretWord: ko.observable('Boobie')
+        secretWord: ko.observable('Word')
     };
 
     ko.applyBindings(model);
@@ -14,9 +14,6 @@ $(function() {
     var context = $('#draw-canvas').get(0).getContext('2d');
     context.strokeStyle = 'black';
 
-    context.canvas.width = $('#draw-canvas').width();
-    context.canvas.height = $('#draw-canvas').height();
-
     var drawing;
     var socket;
 
@@ -25,8 +22,6 @@ $(function() {
       context.clearRect(0 ,0 ,context.canvas.width, context.canvas.height);  
       if (socket) socket.emit('drawing', drawing);
     }
-
-    resetDrawing();
 
     var pointFromEvent = function(e) {
         var x, y;
@@ -84,7 +79,10 @@ $(function() {
 
     socket = io.connect();
     socket.on('connect', function() {
-        socket.emit('drawing', drawing);
+        context.canvas.width =  $('#draw-canvas').width();
+        context.canvas.height = $('#draw-canvas').height();
+
+        resetDrawing();
 
         socket.on('round', function(round) {
             model.screen('drawing');

@@ -7,14 +7,15 @@ var fs   = require('fs');
 var Q    = require('q');
 var child_process = require('child_process');
 var util = require('util');
+var path = require('path');
 
 var trim = function(x) {return x.replace(/^\s+|\s+$/g, '');};
 
 // Make script run for a long time
 setTimeout(function() { console.log('Your script took too long. I\'m bored. Bye!'); }, 10000000);
 
-if (args.length !== 4) {
-    console.log('Usage: node script.js <HTTP://SERVER:PORT/> <TEAMNAME> <PASSWORD> <EXECUTABLE>');
+if (args.length !== 3) {
+    console.log('Usage: node player.js <HTTP://SERVER:PORT/> <TEAMNAME> <EXECUTABLE>');
     console.log('');
     console.log('Your executable will be called periodically with the PATH to an image file,');
     console.log('and is expected to produce the name of the corresponding image class on stdout.');
@@ -24,8 +25,7 @@ if (args.length !== 4) {
 
 var serverAddress = args[0];
 var teamName      = args[1];
-var password      = args[2];
-var executable    = args[3];
+var executable    = args[2];
 
 var latestDrawing = new data.Drawing(0, 0, []);
 
@@ -43,7 +43,15 @@ var canvasContext;
 
 function drawEntireCanvas() {
     canvas = new Canvas(latestDrawing.width, latestDrawing.height)
+    console.log("Creating canvas of", latestDrawing.width, "x", latestDrawing.height)
+
     canvasContext = canvas.getContext('2d')
+
+    canvasContext.rect(0, 0, latestDrawing.width, latestDrawing.height);
+    canvasContext.lineWidth = 0;
+    canvasContext.fillStyle = "white";
+    canvasContext.fill();
+    
     canvasContext.strokeStyle = 'black';
     canvasContext.lineWidth = 3;
     canvasContext.beginPath();
@@ -93,6 +101,7 @@ function writeCanvasToFile() {
 }
 
 var guesserRunning = false;
+var dirty = false;
 
 /**
  * Invoke the guesser with the given filename
@@ -103,27 +112,27 @@ function invokeGuesser(filename) {
     var deferred = Q.defer();
 
     guesserRunning = true;
-    var commandline = executable + ' "' + filename + '"';
+    var dir = path.dirname(executable);
+    var commandline = './' + path.basename(executable) + ' "' + path.resolve(filename) + '"';
     console.log('Running: ' + commandline);
-    var proc = child_process.exec(commandline, function(error, stdout, stderr) {
+    var proc = child_process.exec(commandline, { cwd: dir }, function(error, stdout, stderr) {
         guesserRunning = false;
         if (error)
             deferred.reject(error);
         else {
-            if (stderr.toString()) util.error(stderr.toString());
-            deferred.resolve(trim(stdout.toString()));
+            if (stderr.toString()) {
+                deferred.reject(stderr.toString());
+            }
+            else {
+                deferred.resolve(trim(stdout.toString()));
+            }
         }
     });
 
     return deferred.promise;
 }
 
-/**
- * Invoke the guesser only if it's not currently running
- */
-function maybeInvokeGuesser(filename) {
-    if (!guesserRunning) invokeGuesser(filename);
-}
+// FIXME: Incoming lines after running are not triggered properly
 
 /**
  * Called when the drawing has changed
@@ -132,14 +141,32 @@ function maybeInvokeGuesser(filename) {
  * as a guess.
  */
 var callClient = function() {
+    if (!latestDrawing.lines.length) return;
+
+    if (guesserRunning) { // No two calls at a time, but record for later use
+        dirty = true;
+        return;
+    }
+    guesserRunning = true;
+
     writeCanvasToFile()
         .then(invokeGuesser)
         .then(function(guess) {
-            console.log('Sending guess: ' + guess);
-            socket.emit('guess', new data.Guess(teamName, password, guess));
+            guesserRunning = false;
+            console.log('Sending guess:', guess);
+            socket.emit('guess', new data.Guess(teamName, '', guess));
+            if (dirty) {
+                dirty = false;
+                callClient();
+            }
         })
         .catch(function(error) {
+            guesserRunning = false;
             console.log('ERROR:', error);
+            if (dirty) {
+                dirty = false;
+                callClient();
+            }
         });
 };
 

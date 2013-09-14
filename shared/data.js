@@ -15,8 +15,8 @@ function Drawing(width, height, lines) {
     this.lines  = lines || [];
 }
 
-function Player() {
-	this.name = "";
+function Player(name) {
+	this.name = name;
 	this.score = 0;
 	this.latestGuess = "";
 }

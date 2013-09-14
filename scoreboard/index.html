@@ -3,84 +3,21 @@
     <head>
         <title>Scoreboard</title>
         <script type="text/javascript" src="/lib/knockout/knockout-2.2.1.debug.js"></script>
-        <script type="text/javascript" src="javascript/scoreboard.js"></script>
         <script type="text/javascript" src="/lib/jquery/jquery-1.10.1.js"></script>
         <script type="text/javascript" src="/shared/data.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-        <script type="text/javascript">
-            $(function() {
-                var canvas = document.getElementById('drawingCanvas');
-                var context = canvas.getContext('2d');
-
-                function drawLines(lines) {
-                    context.lineWidth = 3;
-                    context.beginPath();
-                    $.each(lines, function(index, line) {
-                        context.moveTo(line.x1, line.y1);
-                        context.lineTo(line.x2, line.y2);
-                    });
-                    context.stroke();
-                }
-            
-                function ScoreBoardViewModel() {
-                    var self = this;
-
-                    self.players = ko.observableArray();
-                    self.drawingWidth = ko.observable();
-                    self.drawingWidth.subscribe(function(width) {
-                        context.canvas.width = width;
-                    });
-                    self.drawingHeight = ko.observable();
-                    self.drawingHeight.subscribe(function(height) {
-                        context.canvas.height = height;
-                    });
-                    self.drawingLines = ko.observableArray();
-                    self.drawingLines.subscribe(function(lines) {
-                        context.clearRect(0 ,0 ,context.canvas.width, context.canvas.height);
-                        drawLines(lines);
-                    });
-                    self.gameMessage = ko.observable();
-                };
-
-                var scoreBoardViewModel = new ScoreBoardViewModel();
-
-                var socket = io.connect('http://localhost');
-                socket.on('gameState', function(gameState) {
-                    scoreBoardViewModel.players(gameState.players);
-                });
-
-                socket.on('drawing', function(drawing) {
-                    console.log('Received drawing');
-
-                    scoreBoardViewModel.drawingWidth(drawing.width);
-                    scoreBoardViewModel.drawingHeight(drawing.height);
-                    scoreBoardViewModel.drawingLines(drawing.lines);
-                });
-                
-                socket.on('line', function(line) {
-                    drawLines([line]);
-                });
-
-                socket.on('gameMessage', function(gameMessage) {
-                    scoreBoardViewModel.gameMessage(gameMessage);
-                });
-
-                ko.applyBindings(scoreBoardViewModel);
-            });
-        </script>
-        <style type="text/css">
-            canvas { border: 1px solid black; }
-        </style>
+        <script type="text/javascript" src="scoreboard.js"></script>
+        <link rel="stylesheet" href="scoreboard.css" type="text/css">
     </head>
     <body>
-        <h1>Scoreboard</h1>
-        <h2><span data-bind="text: gameMessage"></span></h2>
-		<canvas id="drawingCanvas" data-bind="style: { width: drawingWidth() + 'px', height: drawingHeight() + 'px'}">
+        <h1>The Great Pictionary Challenge</h1>
+        <div class="message" data-bind="visible: gameMessage, text: gameMessage"></div>
+        <canvas id="drawingCanvas" data-bind="attr: { width: drawingWidth, height: drawingHeight }">
 		</canvas>
-        <div class="playerContainer" data-bind="foreach: players">
-            <div class="playerName" data-bind="text: name"></div>
-            <div class="playerScore" data-bind="text: score"></div>
-            <div class="playerLatestGuess" data-bind="text: latestGuess"></div>
+        <div class="player-card" data-bind="foreach: players">
+            <div class="score" data-bind="text: score"></div>
+            <div class="name" data-bind="text: name"></div>
+            <div class="guess" data-bind="text: latestGuess"></div>
         </div>
     </body>
 </html>

@@ -1,0 +1,70 @@
+html, body {
+    margin: 0px;
+    padding: 0px;
+    background: #7193a8;
+}
+
+h1 {
+    background-color: black;
+    color: #E3664D;
+    padding: 0.2em;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-top: 0px;
+    font-family: 'trebuchet ms', sans-serif;
+}
+
+canvas {
+    border: 1px solid black;
+    background: white;
+    margin: 0 1em;
+    float: left;
+}
+
+.message {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    width: 800px;
+    margin-left: -400px;
+    background-color: #EBC75B;
+    padding: 0.5em;
+    color: black;
+    font-size: 50px;
+    font-family: 'helvetica neue', arial, sans-serif;
+    text-shadow: 1px 1px 1px white;
+    font-weight: bold;
+    letter-spacing: -2px;
+    line-height: 1.5em;
+    text-align: center;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+}
+
+.player-card {
+    background: #A9EBC2;
+    margin: 20px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    font-family: 'trebuchet ms', sans-serif;
+    overflow: auto;
+    padding: 20px;
+}
+
+.player-card .name {
+    font-family: 'trebuchet ms', sans-serif;
+    font-size: 30px;
+}
+
+.player-card .score {
+    float: right;
+    font-size: 60px;
+}
+
+.player-card .guess {
+    font-size: 30px;
+    color: red;
+    font-weight: bold;
+}

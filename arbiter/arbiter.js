@@ -6,6 +6,7 @@ var app    = express()
     http   = require('http'),
     data   = require('../shared/data.js'),
     server = http.createServer(app),
+    _      = require('underscore'),
     io     = require('socket.io').listen(server);
 
 app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
@@ -21,17 +22,44 @@ function pickRandomWord() {
     return words[index];
 }
 
+function sendGameMessage(message) {
+    io.sockets.emit('gameMessage', message);
+}
+
+function endRound(game) {
+    var correct = _(game.gameState.players).filter(function(p) {
+        return p.latestGuess == game.round.word;
+    });
+
+    var who = _(correct).pluck('name').join(', ');
+    if (!correct.length) who = 'NOBODY';
+
+    _.each(correct, function(player) {
+        player.score++;
+    });
+
+    sendGameMessage("Correct answer '" + game.round.word + "' was given by " + who);
+    setTimeout(function() {
+        _(game.gameState.players).each(function(p) { p.latestGuess = ''; });
+        sendGameMessage('');
+        sendGameState(io.sockets);
+        switchToNextRound(game);
+    }, 4000);
+
+}
+
 function switchToNextRound(game) {
     game.round.roundNr++;
     game.round.word = pickRandomWord();
+    io.sockets.emit('round', game.round);
 }
 
 function startCountdown(socket) {
-    sendCountdownMessage(socket, 10);
+    sendCountdownMessage(socket, 5);
 }
 
 function sendCountdownMessage(socket, countdownTimer) {
-    io.sockets.emit('gameMessage', 'Round ends in ' + countdownTimer);
+    sendGameMessage('Round ends in ' + countdownTimer);
 
     console.log('Sent game message: ' + countdownTimer);
 
@@ -39,17 +67,19 @@ function sendCountdownMessage(socket, countdownTimer) {
         setTimeout(function() { sendCountdownMessage(socket, countdownTimer - 1); }, 1000);
     }
     else {
-        io.sockets.emit('gameMessage', '');
-        switchToNextRound(game);
-        socket.emit('round', game.round);
+        endRound(game);
     }
+}
+
+function sendGameState(where) {
+    where.emit('gameState', game.gameState);
 }
 
 var game = new data.Game();
 switchToNextRound(game);
 
 io.sockets.on('connection', function(socket) {
-    socket.emit('gameState', game.gameState);
+    sendGameState(socket);
     socket.emit('drawing', game.drawing);
     socket.emit('round', game.round);
 
@@ -64,7 +94,16 @@ io.sockets.on('connection', function(socket) {
     });
 
     socket.on('guess', function(guess) {
-        console.log(guess.teamName);
+        var thePlayer = _(game.gameState.players).find(function(p) { return p.name == guess.teamName; });
+        if (!thePlayer) { 
+            thePlayer = new data.Player(guess.teamName);
+            game.gameState.players.push(thePlayer);
+        }
+
+        // FIXME: Check password here if desired :)
+        thePlayer.latestGuess = guess.word;
+
+        sendGameState(io.sockets);
     });
 
     socket.on('finished', function() {
@@ -73,27 +112,8 @@ io.sockets.on('connection', function(socket) {
     });
 });
 
-var players = [];
 var lines = [];
 var playerCount = 0;
-
-/*
-setInterval(function() {
-	playerCount++;
-	var score = Math.floor(Math.random() * 100 + 1);
-	var guess = words[Math.floor(Math.random() * words.length)];
-	var line = new Object();
-	var width = 768;
-	var height = 1024;
-	line.x1 = Math.floor(Math.random() * width);
-	line.y1 = Math.floor(Math.random() * height);
-	line.x2 = Math.floor(Math.random() * width);
-	line.y2 = Math.floor(Math.random() * height);
-	players.push({ name: "Player " + playerCount, score: score, latestGuess: guess});
-	lines.push(line);
-	io.sockets.emit('gameState', { round: 1, drawing: { width: 768, height: 1024 , lines: lines }, players: players });
-}, 5000);
-*/
 
 //var oneDay = 24 * 60 * 60 * 1000;
 var oneDay = 0;
