@@ -51,7 +51,7 @@ function undoLastDrawingMotion(drawing) {
             break;
         }
     }
-    drawing.lines = drawing.lines.slice(0, i);
+    drawing.lines.splice(i, drawing.lines.length - i);
     if (drawing.lines.length) drawing.lines.push(null);
 }
 
