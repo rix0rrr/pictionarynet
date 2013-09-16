@@ -1,13 +1,29 @@
 var io   = require('socket.io-client');
 var data = require('../shared/data.js');
 var args = process.argv.splice(2);
-var Canvas = require('canvas');
 var _    = require('underscore');
 var fs   = require('fs');
 var Q    = require('q');
 var child_process = require('child_process');
 var util = require('util');
 var path = require('path');
+
+var Canvas;
+try {
+   Canvas = require('canvas');
+   console.log("Loaded Cairo canvas.");
+} catch (e) {
+    try {
+       Canvas = require('canvas-win').Canvas;
+       console.log("Loaded canvas-win.");
+    } catch (e) {
+        console.log("Could not load either 'canvas' or 'canvas-win'.");
+        console.log('');
+        console.log("On UNIX, 'npm install canvas'. Requires Cairo.");
+        console.log("On Windows, 'npm install canvas-win'.");
+        process.exit(1);
+    }
+}
 
 var trim = function(x) {return x.replace(/^\s+|\s+$/g, '');};
 
@@ -174,7 +190,7 @@ var callClient = function() {
 
 // Update drawing based on information from server
 socket.on('drawing', function(drawing) {
-    console.log('Received replacement drawing');
+    console.log('Received complete drawing');
     latestDrawing = drawing;
     drawEntireCanvas();
     callClient();
