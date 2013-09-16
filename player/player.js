@@ -12,15 +12,20 @@ var Canvas;
 try {
    Canvas = require('canvas');
    console.log("Loaded Cairo canvas.");
-} catch (e) {
+} catch (e1) {
     try {
        Canvas = require('canvas-win').Canvas;
        console.log("Loaded canvas-win.");
-    } catch (e) {
+    } catch (e2) {
         console.log("Could not load either 'canvas' or 'canvas-win'.");
         console.log('');
         console.log("On UNIX, 'npm install canvas'. Requires Cairo.");
         console.log("On Windows, 'npm install canvas-win'.");
+        console.log('');
+        console.log('On Windows, if you installed canvas-win, you may need to use a 32-bit Node.');
+        console.log('');
+        console.log('Error loading canvas: ' + e1);
+        console.log('Error loading canvas-win: ' + e2);
         process.exit(1);
     }
 }

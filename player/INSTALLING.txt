@@ -6,5 +6,10 @@ node-canvas
         npm install canvas
 
     Windows:
+        For Windows, the version of Node.exe plus the version of the library matter a lot,
+        plus the bittage needs to be 32. Hence, extract the provided zip file into the current
+        directory and then do
+
         npm install
-        npm install canvas-win
+        
+        to install the remaining packages.
