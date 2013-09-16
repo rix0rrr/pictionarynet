@@ -26,9 +26,13 @@ function sendGameMessage(message) {
     io.sockets.emit('gameMessage', message);
 }
 
+function alphaOnly(word) {
+    return word.replace(/\W/g, '').toLowerCase();
+}
+
 function endRound(game) {
     var correct = _(game.gameState.players).filter(function(p) {
-        return p.latestGuess == game.round.word;
+        return alphaOnly(p.latestGuess) == alphaOnly(game.round.word);
     });
 
     var who = _(correct).pluck('name').join(', ');
