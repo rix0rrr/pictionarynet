@@ -63,8 +63,10 @@ var canvas;
 var canvasContext;
 
 function drawEntireCanvas() {
+    if (latestDrawing.width == 0 || latestDrawing.height == 0) return;
+
     canvas = new Canvas();
-    canvas.width  = latestDrawing.width;
+    canvas.width  = latestDrawing.width; // This API form needed for canvas-win
     canvas.height = latestDrawing.height;
 
     console.log("Creating canvas of", latestDrawing.width, "x", latestDrawing.height)
@@ -75,15 +77,17 @@ function drawEntireCanvas() {
     canvasContext.lineWidth = 0;
     canvasContext.fillStyle = "white";
     canvasContext.fill();
-    
-    canvasContext.strokeStyle = 'black';
-    canvasContext.lineWidth = 3;
-    canvasContext.beginPath();
 
-    _.each(latestDrawing.lines, drawLineToCanvas);
+    if (latestDrawing.lines.length) {
+        canvasContext.strokeStyle = 'black';
+        canvasContext.lineWidth = 3;
+        canvasContext.beginPath();
 
-    canvasContext.stroke();
-    canvasContext.closePath();
+        _.each(latestDrawing.lines, drawLineToCanvas);
+
+        canvasContext.stroke();
+        canvasContext.closePath(); // canvas-win crashes here if no lines drawn
+    }
 }
 
 function drawLineToCanvas(line) {
@@ -106,7 +110,7 @@ function writeCanvasToFile() {
 
     if (canvasContext.saveToFile) {
         // Canvas-win, use sync call
-        ctx.saveToFile(filename, 'image/png');
+        canvasContext.saveToFile(filename, 'image/png');
         deferred.resolve(filename);
     }
     else {
@@ -168,6 +172,7 @@ function invokeGuesser(filename) {
  */
 var callClient = function() {
     if (!latestDrawing.lines.length) return;
+    if (!canvasContext) return;
 
     if (guesserRunning) { // No two calls at a time, but record for later use
         dirty = true;
