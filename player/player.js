@@ -58,7 +58,10 @@ var canvas;
 var canvasContext;
 
 function drawEntireCanvas() {
-    canvas = new Canvas(latestDrawing.width, latestDrawing.height)
+    canvas = new Canvas();
+    canvas.width  = latestDrawing.width;
+    canvas.height = latestDrawing.height;
+
     console.log("Creating canvas of", latestDrawing.width, "x", latestDrawing.height)
 
     canvasContext = canvas.getContext('2d')
