@@ -1,151 +1,78 @@
 Machine Learning challenge SWOC 2013
 ====================================
+
 Rise of the Pictionary machines
 -------------------------------
 
-wat we hebben:
+This is software to run an automated machine recognition contest, based on
+sketch recognition.
 
-- grote dataset met drawings (pixelbased)
-- windows laptops met 2 a 4 cores
-- 4 a 8 gig geheugen per laptop
-- 1 avond de tijd
+Basically:
 
-wat we gaan doen:
+> It is software to make computers play Pictionary!
 
-- met de hand tekenen tijdens de avond
-- op basis van de dataset trainen
-    - dat betekent dat de dataset en de tekeningen moeten overlappen
+You'll need Node.js to run the software. It consists of 4 parts:
 
-wat we willen kunnen:
- 
-- tablet om op te tekenen, die de tekening naar de server stuurt, hoeft niet fancy.
-- groot scherm met overzicht met wat er getekend is, en daarnaast welke team wat geraden heeft 
-- clients connecten naar de server om te kunnen meespelen (wel nodig, niet belangrijk dus zo simpel mogelijk)
-- de server kiest het woord
-- de server houd de tijd en score bij
+- The *arbiter*: this is the piece of Node.js server-code that picks a word
+  that should be drawn. All recognition algorithms report their guess to the
+  arbiter and get points if their guesses are correct.
+- The *sketchboard*: a client-side web application, hosted by the arbiter.
+  Designed to be loaded on an iPad (and only an iPad). This is used by a human
+  to draw the sketches that should be guessed.
+- The *scoreboard*: a client-side web application, hosted by the arbiter, that
+  displays the current drawing, the guesses of all algorithms and the score of
+  each algorithm. This is for the benefit of human observers.
+- The *player*: a command-line node.js application that should be run for each
+  algorithm. It will receive sketch data from the arbiter, write them to a PNG
+  file and call an executable which is expected to produce the algorithm's
+  guess.
 
+Additionally needed will be programs (typically C++ applications based on OpenCV,
+but can be anything) that read images and try to guess their contents.
 
-hoe kunnen we het de client makkelijk maken:
+Prerequisites
+--------------
 
-- bestaande lib om tegen de server te praten
-- bestaande lib om de dataset uit te lezen
+- Node.js on any machine involved.
+- Packages installed for the applications you need to run (arbiter & player, 
+  run `npm install`).
+- For the Player application (needed by everyone wanting to participate with a
+  guessing algorithm), a server-side implementation of HTML5 Canvas is
+  required.  Instructions are in the `player` subdirectory.
+  
 
-Non functionals
----------------
+How to run
+-----------
 
-- optimalisatie naar development tijd!!!
-
-user stories
-------------
-
-- de arbiter geeft de tekenaar een woord aan het begin van de ronde
-- de arbiter ontvangt een tekening van de tekenaar
-- de arbiter geeft plaatjes aan de speler
-- de arbiter ontvangt geraden woorden van de speler
-- de arbiter onthoudt of de woorden binnen de tijd zijn geraden
-- de tekenaar kan aangeven dat hij klaar is met tekenen
-- de spelers hebben X tijd nadat de tekenaar klaar is met tekenen
-- het scorebord laat de huidige tekening zien
-- het scorebord laat een overzicht van woorden die spelers raden zien
-- het scorebord laat de naam van elk team zien
-- het scorebord laat de actuele stand zien
-- de speler meldt zichzelf
-- de speler weet welke tekening de definitieve is
-- de speler weet wanneer de ronde start en eindigt
-- de speler geeft aan bij welke ronde het geraden woord hoort.
-- de speler heeft maar een antwoord bij elke ronde
-
-domein model
-------------
-
-- speler
-- ronde
-- woord
-- tekeningen
-
-- speler heeft naam en score 
-- ronde heeft 1 correct woord
-- ronde heeft 1 woord per speler
-- ronde heeft 1 tekening
-- arbiter bepaalt score 
-- tekenaar tekent tekening op basis van woord tijdens ronde
-- het spel heeft een * rondes
-- het spel heeft 0..1 actuele ronde
-- het spel heeft 1 tekenaar
-
-messages
---------
-
-Messages in the system:
-
-    drawing(drawing object)
-        - Sent by sketchboard to arbiter to update entire drawing.
-
-    line(line object)
-        - Sent by sketchboard for intermediate updates (new lines are drawn).
-
-    finished()
-        - Sent by sketchboard to arbiter to indicate end of a round.
+- Start `node arbiter.js` on any machine.
+- On a machine attached to a beamer, open a browser to
+  'http://arbiter-server:3000/' and select the 'scoreboard' application.
+- On an iPad, open a browser to 'http://arbiter-server:3000/' and select the
+  'sketchboard' application.
+- On every computer that wants to participate, start
     
-    message NewRound {
-        required int round
-        required string word
-    }
-    
-    message Drawing {
-        required int width
-        required int height
-        repeated Line lines
-    }
-    
-    package player;
-    
-    message BeginRound {
-        required int round
-        required int width;
-        required int height;
-    }
-    
-    message EndRound {
-        required int round;
-        required string word;
-    }
-    
-    message Challenge {
-        required int round;
-        required Image image;
-        required boolean final;
-    }
-    
-    message Guess {
-        required string teamName
-        required string password;
-        required string word
-    }
-    
-    package scoreboard;
-    
-    message RequestGameState;
-    message RequestDrawing;
+    node player.js http://arbiter-server:3000/ TeamName path/to/guesser
 
-    message GameState {
-        required int round;
-        repeated Player players;
-    }
-    
-    message Line {
-        required int x1;
-        required int y1;
-        required int x2;
-        required int y2;
-    }
-    
-    message Player {
-        required string name;
-        required int score;
-        required string latestGuess;
-    }
-    
-    message GameMessage {
-        required string text;
-    }
+Guessing Application
+--------------------
+
+Your guessing application will be called by `player.js` every time there is an
+image to recognize. The image will be in PNG format and its filename will be
+passed as the first command-line argument.
+
+The application must produce its guess (and nothing else) on `stdout`. Its
+location should be given as a command-line argument to player.js, and the
+argument should be a single filename. The program will be run in its own
+directory.
+
+Related Code
+-------------
+
+Wouldn't you know it, there's also example code for creating a guesser. It can
+be found here:
+
+https://github.com/rix0rrr/swoc-framework
+
+It's based on the work by Mathias Eitz at 
+
+http://cybertron.cg.tu-berlin.de/eitz/projects/classifysketch/
