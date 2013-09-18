@@ -78,24 +78,21 @@ function drawEntireCanvas() {
     canvasContext.fillStyle = "white";
     canvasContext.fill();
 
-    if (latestDrawing.lines.length) {
-        canvasContext.strokeStyle = 'black';
-        canvasContext.lineWidth = 3;
-        canvasContext.beginPath();
+    canvasContext.strokeStyle = 'black';
+    canvasContext.lineWidth = 3;
 
-        _.each(latestDrawing.lines, drawLineToCanvas);
-
-        canvasContext.stroke();
-        canvasContext.closePath(); // canvas-win crashes here if no lines drawn
-    }
+    _.each(latestDrawing.lines, drawLineToCanvas);
 }
 
 function drawLineToCanvas(line) {
     if (!canvasContext) return;
     if (!line) return;
 
+    canvasContext.beginPath();
     canvasContext.moveTo(line.x1, line.y1);
     canvasContext.lineTo(line.x2, line.y2);
+	canvasContext.stroke();
+	canvasContext.closePath();
 }
 
 /**
@@ -143,7 +140,7 @@ function invokeGuesser(filename) {
 
     guesserRunning = true;
     var dir = path.dirname(executable);
-    var commandline = './' + path.basename(executable) + ' "' + path.resolve(filename) + '"';
+    var commandline = path.basename(executable) + ' "' + path.resolve(filename) + '"';
     console.log('Running: ' + commandline);
     var proc = child_process.exec(commandline, { cwd: dir }, function(error, stdout, stderr) {
         guesserRunning = false;
